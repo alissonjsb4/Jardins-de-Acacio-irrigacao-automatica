@@ -1,0 +1,257 @@
+<CdhDesignControl>:
+    canvas.before:
+        Color:
+            rgba: 1,1,1,1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+#Images of the control page:
+
+    Image:
+        source: "images/Header_control.png"
+        size_hint: 1, 0.18
+        pos_hint: {"x": 0,"y": 0.82125}
+        fit_mode: "fill"
+
+    Image:
+        source: "images/gear.png"
+        size_hint: 0.3333333333333333, 0.15
+        pos_hint: {"x":0.3314814814814815,"y": 0.8375}
+        fit_mode: "scale-down"
+
+#home Button:
+
+    Button:
+        disabled: root.CheckState() #gambiarra
+        id: rtn
+        background_normal: "images/Return_Button.png"
+        size_hint: 0.1509259259259259,0.0679166666666667
+        pos_hint: {'x': 0, 'y': 0.9320833333333333}
+        on_press: root.Return()
+
+#Irrigation control menu:
+
+    Label:
+        font_name: "fonts/inter/static/inter-SemiBold"
+        text: "Controle de irrigação"
+        font_size: 20
+        size_hint: 0.5185185185185185,0.0358333333333333
+        halign: "center"
+        text_size: self.size #redundant but avoids bugs
+        pos_hint: {"x":0.2398148148148148,"y":0.7670833333333333}
+        color: 0,0,0,1
+
+#define cronometer
+
+    TextInput:
+        #disabled: root.checkitson()
+        id: timer_1
+        font_name: "fonts/inter/static/inter-SemiBold"
+        size_hint: 0.5,0.0454166666666667
+        pos_hint: {'x':0.0537037037037037,'y': 0.69625}
+        id: timer_1 #on going irrigation
+
+        halign: "center"
+        hint_text: "Tempo de execução (M)"
+        multiline: False
+        text_size: self.size
+        input_filter: "int"
+
+        background_normal: "images/input_field.png"
+        background_active: "images/input_field.png"
+        background_disabled_normal: "images/input_disabled"
+
+#turning on button:
+
+    Button:
+        #disabled: root.checkitson()
+        id: timer_1_on
+        size_hint: 0.3342592592592593, 0.0454166666666667
+        pos_hint: {'x':0.5990740740740741 ,'y':0.6958333333333333}
+        background_normal: "images/Botão verde.png"
+        background_down: "images/botao_verde_pressionado.png"
+        on_release: root.Irrigation_cronometer()
+
+
+        Label:
+            id: timer_1_label
+            font_name: "fonts/inter/static/inter-SemiBold"
+            text: "Ligar irrigação"
+            font_size: 17
+            center_x: self.parent.center_x
+            center_y: self.parent.center_y + 2
+            color: 1,1,1,1
+
+#Turning off button:
+
+    Button:
+        #disabled: root.checkitson_Button_off()
+        id: timer_1_off
+        size_hint: 0.6972222222222222, 0.0679166666666667
+        pos_hint: {'x':0.1296296296296296,'y':0.605}
+        background_normal: "images/Botao vermelho.png"
+        background_down: "images/botao_vermelho_pressionado.png"
+        background_disabled_normal: "images/botao_vermelho_disabled.png"
+        background_disabled_down: "images/botao_vermelho_disabled.png"
+        on_release: root.Turning_off_irrigation()
+
+        Label:
+            font_name: "fonts/inter/static/inter-SemiBold"
+            text: "Desligar irrigação"
+            font_size: 19
+            center_x: self.parent.center_x
+            center_y: self.parent.center_y + 2
+            color: 1,1,1,1
+
+#Irrigation Timer:
+    Label:
+        font_name: "fonts/inter/static/inter-SemiBold"
+        text: "Agendar Irrigação"
+        font_size: 20
+        size_hint: 0.5185185185185185,0.0358333333333333
+        halign: "center"
+        text_size: self.size #redundant but avoids bugs
+        pos_hint: {"x":0.2398148148148148,"y":0.5033333333333333}
+        color: 0,0,0,1
+
+#Scheduling the irrigation:
+
+    TextInput: #first(date)
+        id: date__1
+        font_name: "fonts/inter/static/inter-SemiBold"
+        size_hint: 0.5,0.032
+        pos_hint: {'x':0.0537037037037037,'y': 0.4354166666666667}
+
+
+        halign: "center"
+        hint_text: "Digite DD/MM/AA"
+        multiline: False
+        text_size: self.size
+
+        background_normal: "images/input_field.png"
+        background_active: "images/input_field.png"
+        background_disabled_normal: "images/input_disabled"
+
+    TextInput: #second (time)
+        id: time1
+        font_name: "fonts/inter/static/inter-SemiBold"
+        size_hint: 0.5,0.032
+        pos_hint: {'x':0.0537037037037037,'y': 0.3979166666666667}
+
+
+        halign: "center"
+        hint_text: "Horário de irrigação"
+        multiline: False
+        text_size: self.size
+
+        background_normal: "images/input_field.png"
+        background_active: "images/input_field.png"
+        background_disabled_normal: "images/input_disabled"
+
+#Turning on button:
+
+    Button:
+        id: schedule_on
+        size_hint: 0.3657407407407407, 0.07
+        pos_hint: {'x':0.6009259259259259 ,'y':0.3979166666666667}
+        background_normal: "images/Botão verde.png"
+        background_down: "images/botao_verde_pressionado.png"
+        on_release: root.scheduling_irrigation()
+
+        Label:
+            id: schedule_on_label
+            font_name: "fonts/inter/static/inter-SemiBold"
+            text: "Agendar irrigação"
+            font_size: 17
+            center_x: self.parent.center_x
+            center_y: self.parent.center_y + 2
+            color: 1,1,1,1
+
+#Turning off button
+
+    Button:
+        id: schedule_off
+        size_hint: 0.6972222222222222, 0.0679166666666667
+        pos_hint: {'x':0.1296296296296296,'y':0.3054166666666667}
+        on_release: root.Turning_off_irrigation_schedule()
+
+
+        background_normal: "images/Botao vermelho.png"
+        background_down: "images/botao_vermelho_pressionado.png"
+        background_disabled_normal: "images/botao_vermelho_disabled.png"
+        background_disabled_down: "images/botao_vermelho_disabled.png"
+
+        Label:
+            font_name: "fonts/inter/static/inter-SemiBold"
+            text: "Desligar programação"
+            font_size: 19
+            center_x: self.parent.center_x
+            center_y: self.parent.center_y + 2
+            color: 1,1,1,1
+
+#Defining the system clock:
+    Label:
+        font_name: "fonts/inter/static/inter-SemiBold"
+        text: "Redefinir Horário"
+        font_size: 20
+        size_hint: 0.5185185185185185,0.0358333333333333
+        halign: "center"
+        text_size: self.size #redundant but avoids bugs
+        pos_hint: {"x":0.2398148148148148,"y":0.20375}
+        color: 0,0,0,1
+
+
+
+
+    TextInput: #first(date)
+        id: date2
+
+        font_name: "fonts/inter/static/inter-SemiBold"
+        size_hint: 0.5,0.032
+        pos_hint: {'x':0.0537037037037037,'y': 0.13459}
+
+
+        halign: "center"
+        hint_text: "Digite DD/MM/AA"
+        multiline: False
+        text_size: self.size
+
+        background_normal: "images/input_field.png"
+        background_active: "images/input_field.png"
+
+    TextInput: #second (time)
+        id: time2
+        font_name: "fonts/inter/static/inter-SemiBold"
+        size_hint: 0.5,0.032
+        pos_hint: {'x':0.0537037037037037,'y': 0.0970833333333333}
+
+
+        halign: "center"
+        hint_text: "Horário de irrigação"
+        multiline: False
+        text_size: self.size
+
+        background_normal: "images/input_field.png"
+        background_active: "images/input_field.png"
+
+#Turning on button:
+
+    Button:
+        id: update_button
+        size_hint: 0.3657407407407407, 0.07
+        pos_hint: {'x':0.6009259259259259 ,'y':0.0970833333333333}
+        background_normal: "images/botao amarelo.png"
+        background_down: "images/botao_amarelo_pressionado.png"
+        on_release: root.UpdatingMachineTime()
+
+        Label:
+            id: label_clock
+            font_name: "fonts/inter/static/inter-SemiBold"
+            text: "Atualizar horário"
+            font_size: 17
+            center_x: self.parent.center_x
+            center_y: self.parent.center_y + 2
+            color: 1,1,1,1
+
+

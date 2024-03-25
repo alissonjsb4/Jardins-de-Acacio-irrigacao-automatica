@@ -1,0 +1,98 @@
+<CdhDesignStatus>:
+
+    canvas.before:
+        Color:
+            rgba: 1,1,1,1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+#Imagens da guia de Status:
+
+    Image:
+        source: "images/Status_panel_header.png"
+        size_hint: 1, 0.18
+        pos_hint: {"x": 0,"y": 0.82125}
+        fit_mode: "fill"
+
+    Image:
+        source: "images/Status_header.png"
+        size_hint: 0.3333333333333333, 0.15
+        pos_hint: {"x":0.3333333333333333,"y": 0.8375}
+        fit_mode: "scale-down"
+
+# Home Button:
+
+    Button:
+        id: rtn
+        background_normal: "images/Return_Button.png"
+        size_hint: 0.1509259259259259,0.0679166666666667
+        pos_hint: {'x': 0, 'y': 0.9320833333333333}
+        on_press: root.Return()
+
+    Label:
+        font_name: "fonts/inter/static/inter-SemiBold"
+        text: "Status da Conexão"
+        font_size: 20
+        size_hint: 0.5185185185185185,0.0358333333333333
+        halign: "center"
+        text_size: self.size #redundant but avoids bugs
+        pos_hint: {"x":0.2398148148148148,"y":0.6775}
+        color: 0,0,0,1
+
+
+#Conection Status:
+
+    Label:
+        id: Label_Status
+        text: "conectado"
+        font_name: "fonts/inter/static/inter-SemiBold"
+        font_size: 17
+        size_hint: 0.337962962962963,0.0341666666666667
+        halign: "center"
+        text_size: self.size #redundant but avoids bugs
+        pos_hint: {"x":0.2861111111111111,"y":0.6270833333333333}
+        color: 0,0,0,1
+
+    Button:
+        disabled: True
+        size_hint: 0.037037037037037,0.0166666666666667
+        pos_hint: {"x":0.60,"y":0.630}
+        background_disabled_normal: "images/Botao_verde_conexao.png"
+
+#Irrigation Status:
+
+    Label:
+        font_name: "fonts/inter/static/inter-SemiBold"
+        text: "Status da Irrigação"
+        font_size: 20
+        size_hint: 0.5185185185185185,0.0358333333333333
+        halign: "center"
+        text_size: self.size #redundant but avoids bugs
+        pos_hint: {"x":0.2398148148148148,"y":0.51}
+        color: 0,0,0,1
+
+#Irrigation time:
+
+    Label:
+        font_name: "fonts/inter/static/inter-SemiBold"
+        text: "Tempo de irrigação"
+        font_size: 17
+        size_hint: 0.4388888888888889,0.0358333333333333
+        halign: "center"
+        text_size: self.size #redundant but avoids bugs
+        pos_hint: {"x":0.2805555555555556,"y":0.4504166666666667}
+        color: 0,0,0,1
+
+
+#time left for next irrigation:
+
+    Label:
+        font_name: "fonts/inter/static/inter-SemiBold"
+        text: "Tempo para próxima irrigação"
+        font_size: 17
+        size_hint: 0.6555555555555556,0.0358333333333333
+        halign: "center"
+        text_size: self.size #redundant but avoids bugs
+        pos_hint: {"x":0.1722222222222222,"y":0.30875}
+        color: 0,0,0,1

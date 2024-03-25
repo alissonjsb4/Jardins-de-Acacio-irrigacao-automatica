@@ -1,0 +1,77 @@
+<CdhDesign>:
+
+    canvas.before:
+        Color:
+            rgba: 1,1,1,1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+#imagens do CDH:
+
+    Image:
+        source: "images/Rectangle 3.png"
+        size_hint: 1, 0.18
+        pos_hint: {"x": 0,"y": 0.82125}
+        fit_mode: "fill"
+
+    Image:
+        source: "images/cdh_white_text.png"
+        size_hint: 0.707, 0.134
+        pos_hint: {"x":0.145,"y": 0.8329}
+        fit_mode: "scale-down"
+
+#Botão de Status:
+
+    Label:
+        font_name: "fonts/inter/static/inter-SemiBold"
+        text: "Status"
+        size_hint: 0.3166666666666667,0.0404166666666667
+        halign: "center"
+        text_size: self.size
+        pos_hint: {"x":0.3416666666666667,"y":0.6729166666666667}
+        color: 0,0,0,1
+
+    Button:
+        id: BHS #short for Button_Home_Status
+        background_normal: "images/Botoes.png"
+        background_down: "images/Botao_pressionado.png"
+        size_hint: 0.458,0.0995
+        pos_hint: {"x": 0.271,"y": 0.56375}
+
+        on_release: root.TransitionS()
+
+        Image:
+            source: "images/Status.png"
+            size: self.parent.size
+            center_x: self.parent.center_x
+            center_y: self.parent.center_y + 1
+            fit_mode: "scale-down"
+
+#Botão de controle:
+
+    Label:
+        font_name: "fonts/inter/static/inter-SemiBold"
+        text: "Controles"
+        size_hint: 0.4527,0.40416
+        halign: "center"
+        text_size: self.size
+        pos_hint: {"x":0.27407,"y":0.39875}
+        color: 0,0,0,1
+
+    Button:
+        id:BHC
+        background_normal: "images/Botoes.png"
+        background_down: "images/Botao_pressionado.png"
+        size_hint: 0.458,0.0995
+        pos_hint: {"x": 0.271,"y": 0.287}
+        on_release: root.TransitionC()
+
+        Image:
+            size: self.parent.size
+            source: "images/ph_gear.png"
+            center_x: self.parent.center_x
+            center_y: self.parent.center_y
+            fit_mode: "scale-down"
+
+
