@@ -3,7 +3,7 @@
 #include <HardwareSerial.h>
 
 const char* ssid = "LESC";
-const char* password = "YourWiFiPassword"; //REPLACE WITH LESC WIFI PASSWORD
+const char* password = "YourWiFiPassword"; //A33669608F
 const int port = 8080;
 
 WiFiServer server(port);
