@@ -24,6 +24,7 @@
 # Home Button:
 
     Button:
+        disabled: root.defining_connection_status()
         id: rtn
         background_normal: "images/Return_Button.png"
         size_hint: 0.1509259259259259,0.0679166666666667
@@ -44,8 +45,8 @@
 #Conection Status:
 
     Label:
-        id: Label_Status
-        text: "conectado"
+        id: Label_Connection_Status
+        text: ""
         font_name: "fonts/inter/static/inter-SemiBold"
         font_size: 17
         size_hint: 0.337962962962963,0.0341666666666667
@@ -55,10 +56,19 @@
         color: 0,0,0,1
 
     Button:
+        id: connection_button
         disabled: True
         size_hint: 0.037037037037037,0.0166666666666667
         pos_hint: {"x":0.60,"y":0.630}
-        background_disabled_normal: "images/Botao_verde_conexao.png"
+        background_disabled_normal: "images/Input_field"
+
+        Image:
+            id: connection_image
+            size: self.parent.size
+            source: "images/Botao_vermelho_conexao.png"
+            center_x: self.parent.center_x
+            center_y: self.parent.center_y
+            fit_mode: "scale-down"
 
 #Irrigation Status:
 

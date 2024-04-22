@@ -1,9 +1,9 @@
 from datetime import datetime
-
 from kivy.clock import Clock
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.app import App
 from kivy.config import Config
+from Wifi_Communication import Wifi_Communication as WC
 
 sm = ScreenManager()
 
@@ -89,7 +89,7 @@ class CdhDesignControl(Screen):
             self.ids.timer_1.hint_text = "Tempo de execução (M)"
 
 
-        if self.ids.timer_1.text != "" and int(self.ids.timer_1.text) > 0 and int(self.ids.timer_1.text) < 1000:
+        if self.ids.timer_1.text != "" and self.ids.timer_1.text != "Horário inválido" and int(self.ids.timer_1.text) > 0 and int(self.ids.timer_1.text) < 1000:
             global Cronometer_timer
             global Irrigation_state
             Cronometer_timer = int(self.ids.timer_1.text)
@@ -106,7 +106,7 @@ class CdhDesignControl(Screen):
                 self.ids.timer_1.text = ""
 
             self.ids.timer_1.disabled = True
-            self.ids.timer_1.text = "Horario invalido"
+            self.ids.timer_1.text = "Horário inválido"
             Clock.schedule_once(updating_text_input, 1.5)
 
     def Turning_off_irrigation(self):
@@ -133,7 +133,7 @@ class CdhDesignControl(Screen):
 
         def detect_index_time():
             i = 0
-            for exp in self.ids.time1.text.split(";"):
+            for exp in self.ids.time1.text.split(":"):
                 i+=1
             return i
 
@@ -195,13 +195,20 @@ class CdhDesignControl(Screen):
             self.ids.label_clock.text = "Horário inválido"
             Clock.schedule_once(updating_button_label_state, 1.5)
 
-
 class CdhDesignStatus(Screen):
     def Return(self):
         sm.transition.direction = "right"
         sm.current = "Home"
-    def defining_status(self):
-        pass
+    def defining_connection_status(self):
+        if WC.check_connection() == True:
+            self.ids.Label_Connection_Status.text = "Conectado"
+            self.ids.connection_image.source = "images/Botao_verde_conexao.png"
+        else:
+            self.ids.Label_Connection_Status.text = "Desconectado"
+            self.ids.connection_image.source = "images/Botao_vermelho_conexao.png"
+    def defining_irrigation_status(self):
+        if WC.check_connection() == True:
+            pass
 class MainApp(App):
     def build(self):
         Config.set('graphics', 'width', "400")
