@@ -38,6 +38,7 @@ class CdhDesign(Screen):
     def TransitionS(self):
         sm.transition.direction = "left"
         sm.current = "Status"
+
 class CdhDesignControl(Screen):
     def Return(self):
         sm.transition.direction = "right"
@@ -199,16 +200,30 @@ class CdhDesignStatus(Screen):
     def Return(self):
         sm.transition.direction = "right"
         sm.current = "Home"
-    def defining_connection_status(self):
-        if WC.check_connection() == True:
+
+
+    def LoadingServerStats(self):
+        if WC.check_connection():
             self.ids.Label_Connection_Status.text = "Conectado"
             self.ids.connection_image.source = "images/Botao_verde_conexao.png"
         else:
             self.ids.Label_Connection_Status.text = "Desconectado"
             self.ids.connection_image.source = "images/Botao_vermelho_conexao.png"
-    def defining_irrigation_status(self):
-        if WC.check_connection() == True:
-            pass
+
+#Irrigation Status (ON/OFF)
+
+        if WC.check_status():
+            self.ids.Irrigation_Status.text = "Ligado"
+        else:
+            self.ids.Irrigation_Status.text = "Desligado"
+
+#Irrigation running time:
+
+        time = WC.check_running_time()
+        if time != -1:
+            self.ids.Running_time.text = str(time)
+
+
 class MainApp(App):
     def build(self):
         Config.set('graphics', 'width', "400")
