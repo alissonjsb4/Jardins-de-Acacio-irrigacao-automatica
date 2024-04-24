@@ -1,6 +1,9 @@
 import http.client
 
-client = http.client.HTTPConnection("ip da ESP")
+esp8266IP = ''      #preencher
+esp8266PORT = 8080  #preencher
+
+client = http.client.HTTPConnection(esp8266IP, esp8266PORT)
 
 def check_connection():
     client.request("GET", "/")
