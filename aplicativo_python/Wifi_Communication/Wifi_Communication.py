@@ -1,8 +1,15 @@
 import http.client
 from bs4 import BeautifulSoup
 
+<<<<<<< HEAD
 
 client = http.client.HTTPConnection("www.google.com")
+=======
+esp8266IP = ''      #preencher
+esp8266PORT = 8080  #preencher
+
+client = http.client.HTTPConnection(esp8266IP, esp8266PORT)
+>>>>>>> f48496b4228dba14901a5d998491fff796f216ac
 
 def check_connection():
     client.request("GET", "/")
@@ -28,6 +35,7 @@ def check_status():
         return False
 
 def check_running_time():
+<<<<<<< HEAD
     if check_connection() and check_status():
         client.request("GET", "/irrigation")
         html = client.getresponse().read()
@@ -36,3 +44,9 @@ def check_running_time():
         return html_content
     else:
         return -1
+=======
+    client.request("GET", "/irrigation")
+    time = client.getresponse().read().decode("utf-8")
+    client.close()
+    return time
+>>>>>>> f48496b4228dba14901a5d998491fff796f216ac
