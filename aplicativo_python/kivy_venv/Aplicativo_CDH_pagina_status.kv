@@ -24,7 +24,7 @@
 # Home Button:
 
     Button:
-        disabled: root.LoadingServerStats()
+        disabled: root.Loop()
         id: rtn
         background_normal: "images/Return_Button.png"
         size_hint: 0.1509259259259259,0.0679166666666667
@@ -112,11 +112,11 @@
         disabled: True
         background_disabled_normal: "images/input_disabled.png"
         id: Running_time
-        text: ""
+        text: "dasd"
         font_size: 13
         multiline: True
         size_hint: 0.24537037037037037037037037037037,0.032
-        haling: "center"
+        halign: "center"
         pos_hint: {"x":0.35833333333333333333333333333333,"y":0.39666666666666666666666666666667}
         color: 0.502, 0.502, 0.502
 
@@ -131,3 +131,17 @@
         text_size: self.size #redundant but avoids bugs
         pos_hint: {"x":0.1722222222222222,"y":0.33}
         color: 0,0,0,1
+
+    TextInput:
+        font_name: "fonts/inter/static/inter-SemiBold"
+        disabled: True
+        background_disabled_normal: "images/input_disabled.png"
+        id: Next_Irrigation
+        text: ""
+        font_size: 15
+        multiline: True
+        size_hint: 0.48981481481481481481481481481481,0.07625
+        halign: "center"
+        valign: "middle"
+        pos_hint: {"x":0.23518518518518518518518518518519,"y":0.21625}
+        color: 0.502, 0.502, 0.502

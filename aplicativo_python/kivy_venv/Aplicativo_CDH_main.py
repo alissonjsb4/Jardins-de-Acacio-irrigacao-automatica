@@ -7,24 +7,6 @@ from Wifi_Communication import Wifi_Communication as WC
 
 sm = ScreenManager()
 
-# irrigation variables
-
-Cronometer_timer = -1
-# em minutos
-
-Irrigation_state = True
-# True --> irrigando
-
-# False --> Não irrigando
-
-# schedule variables
-date_irrigation_schedule = ""
-time_irrigation_schedule = ""
-
-Schedule_Irrigation_State = True
-# True --> tem uma irração marcada
-# False --> Não há uma irrigação marcada
-
 # Time update variables:
 
 Data_Update = ""
@@ -67,7 +49,7 @@ class CdhDesignControl(Screen):
 
 #Scheduling:
 
-        if Schedule_Irrigation_State == True:
+        if WC.check_status_schedule():
             self.ids.date__1.disabled = True
             self.ids.time1.disabled = True
             self.ids.schedule_on.disabled = True
@@ -82,7 +64,7 @@ class CdhDesignControl(Screen):
             self.ids.date__1.text = ""
             self.ids.time1.text = ""
 
-# Irrigation Cronometer Controls
+# Irrigation Cronometer Controls --------> OK
 
     def Irrigation_cronometer(self):
         def updating_button_label_state(dt):
@@ -95,7 +77,7 @@ class CdhDesignControl(Screen):
         if self.ids.timer_1.text != "" and self.ids.timer_1.text != "Horário inválido" and 0 < int(
                 self.ids.timer_1.text) < 1000:
 
-            stopwatch = int(self.ids.timer_1.text)
+            stopwatch = str(self.ids.timer_1.text)
 
             WC.switchIrrigation("L", stopwatch)
 
@@ -113,6 +95,7 @@ class CdhDesignControl(Screen):
             Clock.schedule_once(updating_text_input, 1.5)
 
     def Turning_off_irrigation(self):
+
         def CheckState2(dt):
             self.CheckState()
 
@@ -127,10 +110,9 @@ class CdhDesignControl(Screen):
             self.ids.schedule_on.background_disabled_normal = "images/botao_vermelho_disabled.png"
             self.ids.schedule_on_label.text = "Agendar Irrigação"
 
+        def CheckState2(dt):
+            self.CheckState()
 
-
-        global date_irrigation_schedule
-        global time_irrigation_schedule
 
         def detect_index_date():
             i = 0
@@ -146,7 +128,8 @@ class CdhDesignControl(Screen):
 
         def validtime():
             temp1 = self.ids.time1.text.split(":")
-            if 0 <= int(temp1[0]) < 24 and 0 < int(temp1[1]) < 60:
+            temp2 = self.ids.date__1.text.split("/")
+            if 0 <= int(temp1[0]) < 24 and 0 < int(temp1[1]) < 60 and 1 <= int(temp2[0]) <= 30 and 1 <= int(temp2[1]) <= 12:
                 return True
             else:
                 return False
@@ -160,12 +143,10 @@ class CdhDesignControl(Screen):
             if temp3 > str(datetime.now()):
                 date_irrigation_schedule = str(self.ids.date__1.text)
                 time_irrigation_schedule = str(self.ids.time1.text)
+                WC.switchIrrigationSchedule("L", date_irrigation_schedule, time_irrigation_schedule)
                 self.ids.schedule_on_label.text = "Programado"
                 self.ids.schedule_on.background_disabled_normal = "images/Botão verde.png"
-                self.ids.schedule_on.disabled = True
-                self.ids.schedule_off.disabled = False
-                self.ids.date__1.text = ""
-                self.ids.time1.text = ""
+                Clock.schedule_once(CheckState2, 2.0)
                 Clock.schedule_once(updating_button_label_state, 1.5)
             else:
                 self.ids.schedule_on_label.text = "Data inválida"
@@ -181,26 +162,30 @@ class CdhDesignControl(Screen):
 
 
     def Turning_off_irrigation_schedule(self):
-        global Schedule_Irrigation_State
-        Schedule_Irrigation_State = False
-        self.CheckState()
+        def Checkstate2(dt):
+            self.CheckState()
+
+        WC.switchIrrigationSchedule("D", "0", "0")
+        Clock.schedule_once(Checkstate2, 2.0)
 
 # Update time:
 
     def UpdatingMachineTime(self):
         def updating_button_label_state(dt):
             self.ids.label_clock.text = "Atualizar Horário"
+            self.ids.update_button.disabled = False
 
-        global Data_Update
-        global Time_Update
         if self.ids.date2.text != "" and self.ids.time2.text != "":
-            Data_Update = str(self.ids.date2.text)
-            Time_Update = str(self.ids.time2.text)
-            print(Data_Update + "\n" + Time_Update)
+            date_update = str(self.ids.date2.text)
+            time_update = str(self.ids.time2.text)
+            WC.switchIrrigationTime(date_update, time_update)
+
+            self.ids.update_button.disabled = True
+
             self.ids.label_clock.text = "Horário Atualizado"
             self.ids.date2.text = ""
             self.ids.time2.text = ""
-            Clock.schedule_once(updating_button_label_state, 1.5)
+            Clock.schedule_once(updating_button_label_state, 3.0)
         else:
             self.ids.label_clock.text = "Horário inválido"
             Clock.schedule_once(updating_button_label_state, 1.5)
@@ -217,6 +202,7 @@ class CdhDesignStatus(Screen):
         if WC.check_connection():
             self.ids.Label_Connection_Status.text = "Conectado"
             self.ids.connection_image.source = "images/Botao_verde_conexao.png"
+            print("1")
         else:
             self.ids.Label_Connection_Status.text = "Desconectado"
             self.ids.connection_image.source = "images/Botao_vermelho_conexao.png"
@@ -225,6 +211,7 @@ class CdhDesignStatus(Screen):
 
         if WC.check_status():
             self.ids.Irrigation_Status.text = "Ligado"
+            print("2")
         else:
             self.ids.Irrigation_Status.text = "Desligado"
 
@@ -233,14 +220,21 @@ class CdhDesignStatus(Screen):
         time = WC.check_running_time()
         if time != -1:
             self.ids.Running_time.text = str(time)
+            print("3")
         else:
             self.ids.Running_time.text = "-------------------"
 
 #Time For Next Irrigation:
 
+        if WC.check_remaining_time() != "-1":
+            self.ids.Next_Irrigation.text = str(WC.check_remaining_time())
+            print("4")
+        else:
+            self.ids.Next_Irrigation.text = "Sem Irrigação Programada"
 
-
-
+    def Loop(self):
+        self.LoadingServerStats()
+        Clock.schedule_interval(lambda dt: self.LoadingServerStats(), 10)
 
 
 
