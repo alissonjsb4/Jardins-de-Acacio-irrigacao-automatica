@@ -107,12 +107,15 @@
         pos_hint: {"x":0.2805555555555556,"y":0.44833333333333333333333333333333}
         color: 0,0,0,1
 
-    Label:
-        id: Running_time
+    TextInput:
         font_name: "fonts/inter/static/inter-SemiBold"
+        disabled: True
+        background_disabled_normal: "images/input_disabled.png"
+        id: Running_time
         text: ""
-        font_size: 14
-        size_hint: 0.24537037037037037037037037037037,0.02625
+        font_size: 13
+        multiline: True
+        size_hint: 0.24537037037037037037037037037037,0.032
         haling: "center"
         pos_hint: {"x":0.35833333333333333333333333333333,"y":0.39666666666666666666666666666667}
         color: 0.502, 0.502, 0.502

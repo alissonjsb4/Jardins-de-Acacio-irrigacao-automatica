@@ -46,7 +46,7 @@ class CdhDesignControl(Screen):
 
     def CheckState(self):
 
-        if Irrigation_state == True:
+        if WC.check_status():
 #On_Button:
             self.ids.timer_1_on.disabled = True
 # desativado
@@ -89,16 +89,18 @@ class CdhDesignControl(Screen):
             self.ids.timer_1_label.text = "Ligar irrigação"
             self.ids.timer_1.hint_text = "Tempo de execução (M)"
 
-
-        if self.ids.timer_1.text != "" and self.ids.timer_1.text != "Horário inválido" and int(self.ids.timer_1.text) > 0 and int(self.ids.timer_1.text) < 1000:
-            global Cronometer_timer
-            global Irrigation_state
-            Cronometer_timer = int(self.ids.timer_1.text)
-            self.ids.timer_1_off.disabled = False
-            self.ids.timer_1.text = ""
-            self.ids.timer_1_label.text = "Ligado"
-            Irrigation_state = True
+        def CheckState2(dt):
             self.CheckState()
+
+        if self.ids.timer_1.text != "" and self.ids.timer_1.text != "Horário inválido" and 0 < int(
+                self.ids.timer_1.text) < 1000:
+
+            stopwatch = int(self.ids.timer_1.text)
+
+            WC.switchIrrigation("L", stopwatch)
+
+            Clock.schedule_once(CheckState2, 2.0)
+
             Clock.schedule_once(updating_button_label_state, 1.5)
         else:
             def updating_text_input(dt):
@@ -111,16 +113,20 @@ class CdhDesignControl(Screen):
             Clock.schedule_once(updating_text_input, 1.5)
 
     def Turning_off_irrigation(self):
-        global Irrigation_state
-        Irrigation_state = False
-        self.CheckState()
+        def CheckState2(dt):
+            self.CheckState()
+
+        WC.switchIrrigation("D", -1)
+        Clock.schedule_once(CheckState2, 2.0)
 
 
 # Schedule Controls
 
     def scheduling_irrigation(self):
         def updating_button_label_state(dt):
+            self.ids.schedule_on.background_disabled_normal = "images/botao_vermelho_disabled.png"
             self.ids.schedule_on_label.text = "Agendar Irrigação"
+
 
 
         global date_irrigation_schedule
@@ -155,6 +161,9 @@ class CdhDesignControl(Screen):
                 date_irrigation_schedule = str(self.ids.date__1.text)
                 time_irrigation_schedule = str(self.ids.time1.text)
                 self.ids.schedule_on_label.text = "Programado"
+                self.ids.schedule_on.background_disabled_normal = "images/Botão verde.png"
+                self.ids.schedule_on.disabled = True
+                self.ids.schedule_off.disabled = False
                 self.ids.date__1.text = ""
                 self.ids.time1.text = ""
                 Clock.schedule_once(updating_button_label_state, 1.5)
@@ -203,6 +212,8 @@ class CdhDesignStatus(Screen):
 
 
     def LoadingServerStats(self):
+
+#ESP Connection Status
         if WC.check_connection():
             self.ids.Label_Connection_Status.text = "Conectado"
             self.ids.connection_image.source = "images/Botao_verde_conexao.png"
@@ -217,11 +228,20 @@ class CdhDesignStatus(Screen):
         else:
             self.ids.Irrigation_Status.text = "Desligado"
 
-#Irrigation running time:
+#Irrigation Running Time:
 
         time = WC.check_running_time()
         if time != -1:
             self.ids.Running_time.text = str(time)
+        else:
+            self.ids.Running_time.text = "-------------------"
+
+#Time For Next Irrigation:
+
+
+
+
+
 
 
 class MainApp(App):
@@ -232,7 +252,6 @@ class MainApp(App):
         self.load_kv("Aplicativo_CDH_main.kv")
         self.load_kv("Aplicativo_CDH_pagina_controle.kv")
         self.load_kv("Aplicativo_CDH_pagina_status.kv")
-
 
         sm.add_widget(CdhDesign(name="Home"))
         sm.add_widget(CdhDesignControl(name="Control"))
