@@ -31,13 +31,13 @@ void HiTime(unsigned int time_parameters[]){
       }
 
     } else{
-      // retorna uma mensagem de erro
+      printf("Error in HiTime\n");
     }
   }
 
 char HiStatus(){
   char current;
-  if(Serial.available > 0){
+  if(Serial.available() > 0){
     unsigned int status = Serial.read();
 
     switch(status){
@@ -68,6 +68,8 @@ void loop() {
 
   //Pego os comandos do app:
   char appByte;
+  appByte = 'l';
+  
 
   switch(appByte){
     //ligar:
@@ -89,11 +91,17 @@ void loop() {
     ByeByte('m');
     //pedir dia, mês, ano, hora, minuto e segundo para o app
     unsigned int dia;
+    dia = 4;
     unsigned int mes;
+    mes = 6;
     unsigned int ano;
+    ano = 2024;
     unsigned int hora;
+    hora = 17;
     unsigned int minuto;
+    minuto = 5;
     unsigned int segundo;
+    segundo = 30;
 
     //Enviar esses parâmetros para a ST
     ByeTime(dia, mes, ano, hora, minuto, segundo);
@@ -106,17 +114,18 @@ void loop() {
     ByeByte('s');
 
     //Lê o status e classifica se é verdadeiro (irrigando) ou falso (desligado)
-    char current = HiStatus();
+    char status;
+    status = HiStatus();
 
-    if(current != 'L'){
+    if(status != 'L'){
 
-      ByeByte(current);
+      printf("%c", status);
 
     } 
     
     else{
 
-      // Retorna uma mensagem de erro pro app;
+      printf("Error in HiStatus");
 
     }
     
@@ -127,7 +136,11 @@ void loop() {
 
     unsigned int time_parameters[6];
     ByeByte('h');
-    HiByte(time_parameters);
+    HiTime(time_parameters);
+    for(int i = 0; i < 6; i++){
+      printf("%d", time_parameters[i]);
+      printf("\n");
+    }
 
     //passa time_parameters para o app
 
