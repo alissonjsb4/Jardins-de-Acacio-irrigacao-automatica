@@ -42,19 +42,24 @@
 RTC_HandleTypeDef hrtc;
 
 UART_HandleTypeDef huart1;
+DMA_HandleTypeDef hdma_usart1_rx;
+DMA_HandleTypeDef hdma_usart1_tx;
 
 /* USER CODE BEGIN PV */
+
 //Caractere de comandos
-char comm = 'k';
+char comm_buffer = 'z';
 //Array que vai receber os parâmetros do rtc
-unsigned int time[6];
+uint8_t time_buffer[6] = {0, 0, 0, 0, 0, 0};
 //Variável de controle de irrigação ou não irrigação
+
 unsigned int on = 1;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_RTC_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
@@ -63,6 +68,37 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+//Inicializa o RTC da placa
+void InitRtc(){
+
+}
+
+//Atualiza o RTC com uma data e horário fornecidos pelo usuário
+void SetRtc(unsigned int time_buffer[]){
+
+}
+
+//Função de marcar uma irrigação futura
+void SetIrrigationTime(unsigned int time_buffer[]){
+
+}
+
+//Função de iniciar a irrigação. Vai configurar um pino como High
+void TurnOn(){
+
+
+
+
+}
+
+//Função de desligar a irrigação. Vai configurar um pino como Low
+void TurnOff(){
+
+
+}
+
+
 
 /* USER CODE END 0 */
 
@@ -94,6 +130,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_RTC_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
@@ -105,54 +142,45 @@ int main(void)
   while (1)
   {
 	  //Verifica se a recepção de dados está ok
-	  if(HAL_UART_Receive(&huart1, (uint8_t*)&comm, 1, HAL_MAX_DELAY) == HAL_OK){
+	  if(HAL_UART_Receive_DMA(&huart1, (uint8_t*)&comm_buffer, 1) == HAL_OK){
 
-		  switch(comm){
+		  switch(comm_buffer){
 
 		  	  //Comando de ligar
 			  case 'l':
 				  //TurnOn();
-				  printf('l');
 				  on = 0;
 				  break;
 
 			  //Comando de desligar
 			  case 'd':
 				  //TurnOff();
-				  printf('d');
 				  on = 1;
 				  break;
 
 			  //Comando de marcar irrigação
 			  case 'm':
-				  printf('m');
 				  //Verifica se a recepção dos parâmetros de tempo está ok
-				  if(HAL_UART_Receive(&huart1, time, 6, HAL_MAX_DELAY) == HAL_OK) {
+				  if(HAL_UART_Receive_DMA(&huart1, time_buffer, 6) == HAL_OK) {
 					  continue;
-					  for(int i = 0; i < 6; i++){
-						  printf("%d", time[i]);
-						  printf("\n");
-					  }
 				  } else{
-					  printf("Error\n");
+					  Error_Handler();
 				  }
 				  break;
 
 			  //Comando de retornar o status de irrigação
 			  case 's':
-				  printf('s');
-				  HAL_UART_Transmit_IT(&huart1, (uint8_t*)&on, 1);
+				  HAL_UART_Transmit_DMA(&huart1, (uint8_t*)&on, 1);
 				  break;
 
 			  //Comando de retornar o tempo;
 			  case 'h':
-				  printf('h');
-				  HAL_UART_Transmit_IT(&huart1, time, 6);
+				  HAL_UART_Transmit_DMA(&huart1, time_buffer, 6);
 				  break;
 
 			  //Mensagem de erro qualquer
 			  default:
-				  printf("Unknown Command\n");
+				  Error_Handler();
 				  break;
 
 			  }
@@ -160,7 +188,7 @@ int main(void)
 
 
 	  } else{
-		  printf("UART Error\n");
+		  Error_Handler();
 	  }
 
 
@@ -307,6 +335,25 @@ static void MX_USART1_UART_Init(void)
 }
 
 /**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel4_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
+  /* DMA1_Channel5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -331,6 +378,13 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
+
+}
 
 /* USER CODE END 4 */
 
