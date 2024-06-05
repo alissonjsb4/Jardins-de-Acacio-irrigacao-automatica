@@ -2,7 +2,7 @@ import http.client
 from bs4 import BeautifulSoup
 import json
 
-client = http.client.HTTPConnection("www.google.com")
+client = http.client.HTTPConnection("192.168.1.77")
 
 #Get Methods:
 def check_connection():
@@ -18,9 +18,9 @@ def check_connection():
 
 
 def check_status():
-    client.request("GET", "/status")
-    status = client.getresponse().status
-    if status == 404: # L for "ligado", 404 only for test with Google
+    client.request("GET", "Irrigation-Status")        #Checa se a conexão com o webServer foi bem sucedida --- sem função correspondente na ESP
+    status = client.getresponse().read().decode("utf-8").find("L")
+    if status >= 0:
         client.close()
         return True
     else:
@@ -28,24 +28,26 @@ def check_status():
         return False
 
 def check_status_schedule():
-    client.request("GET", "/schedule")
-    status = client.getresponse().status
-    if status == 404:  # L for "ligado", 404 only for testing
+    client.request("GET", "/Schedule")                  #checks if there is an irrigation scheduled.
+    status = client.getresponse().read().decode("utf-8").find("L") #if so, True, if dont, False. thus, this changes the display for the user
+
+    if status >= 0:  # L for "ligado"
         client.close()
         return True
     else:
         client.close()
         return False
 
-def check_running_time():
-    client.request("GET", "/irrigation")
-    html = client.getresponse().read()
-    html_content = BeautifulSoup(html, "html.parser").get_text()
+def check_running_time():               #Time for next Irrigation
+    client.request("GET", "/Running-Time")
+    html = client.getresponse().read().decode("utf=8")
+    print(html)
+    #html_content = BeautifulSoup(html, "html.parser")
     client.close()
-    return html_content
+    return html
 def check_remaining_time():
 
-    client.request("GET", "/schedule")
+    client.request("GET", "/Next-Irrigation")
     html = client.getresponse().read()
     html_content = BeautifulSoup(html, "html.parser").get_text()
     client.close()
@@ -59,19 +61,23 @@ def switchIrrigation(action, time):
     payload = {"command": action, "time": time}
     json_data = json.dumps(payload)
     print(json_data)
-    client.request("POST", "/irrigation", body=json_data)
+    client.request("POST", "/IrrigationDefStats", body=json_data)
+    retorno = client.getresponse().read().decode("utf-8")
+    print(retorno)
     client.close()
 
 def switchIrrigationSchedule(action, date, time):
     payload = {"command": action, "date": date, "time": time}
     json_data = json.dumps(payload,separators=(",", ":"))
     print(json_data)
-    client.request("POST", "/schedule", body=json_data)
+    client.request("POST", "/IrrigationDefSchedule", body=json_data)
+    retorno = client.getresponse().read().decode("utf-8")
+    print(retorno)
     client.close()
 
 def switchIrrigationTime(date,time):
     payload = {"date": date, "time": time}
     json_data = json.dumps(payload,separators=(",", ":"))
     print(json_data)
-    client.request("POST", "/sysclock", body=json_data)
+    client.request("POST", "/IrrigationDefSysClock", body=json_data)
     client.close()
