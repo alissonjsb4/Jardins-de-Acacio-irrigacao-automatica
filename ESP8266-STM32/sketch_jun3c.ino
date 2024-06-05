@@ -1,18 +1,35 @@
 
+char appByte;
+
+    uint8_t dia;
+    uint8_t mes;
+    uint8_t ano;
+    uint8_t hora;
+    uint8_t minuto;
+    uint8_t segundo;
+
 void setup() {
   // put your setup code here, to run once:
 
   //baud rate
   Serial.begin(115200, SERIAL_8E1); 
 
+  appByte = 'l';
+  dia = 4;
+  mes = 6;
+  ano = 2024;
+  hora = 17;
+  minuto = 5;
+  segundo = 30;
 }
 
-void ByeByte(char ByteToGo){
-  Serial.write(ByteToGo);
+
+void SerialSendChar(char Byte){
+  Serial.write(Byte);
 }
 
-void ByeTime(unsigned int dia, unsigned int mes, unsigned int ano, unsigned int hora, unsigned int minuto, unsigned int segundo){
-  unsigned int auxarr[6] = {dia, mes, ano, hora, minuto, segundo};
+void SerialSendTime(uint8_t dia, uint8_t mes, uint8_t ano, uint8_t hora, uint8_t minuto, uint8_t segundo){
+  uint8_t auxarr[6] = {dia, mes, ano, hora, minuto, segundo};
 
   for(int i = 0; i < 6; i++){
     Serial.write(auxarr[i]) ;
@@ -20,7 +37,7 @@ void ByeTime(unsigned int dia, unsigned int mes, unsigned int ano, unsigned int 
 
 }
 
-void HiTime(unsigned int time_parameters[]){
+void SerialReceiveTime(uint8_t time_parameters[]){
     if(Serial.available() >= 6){
 
       //Recebendo os parâmetros de tempo e armazenando-os num vetor
@@ -31,11 +48,11 @@ void HiTime(unsigned int time_parameters[]){
       }
 
     } else{
-      printf("Error in HiTime\n");
+      Serial.println("Error in SerialReceiveTime");
     }
   }
 
-char HiStatus(){
+char SerialReceiveStatus(){
   char current;
   if(Serial.available() > 0){
     unsigned int status = Serial.read();
@@ -65,67 +82,51 @@ char HiStatus(){
 
 void loop() {
   // put your main code here, to run repeatedly:
-
-  //Pego os comandos do app:
-  char appByte;
-  appByte = 'l';
   
 
   switch(appByte){
     //ligar:
     case 'l':
-
-    ByeByte('l');
+    
+    SerialSendChar('l');
 
     break;
 
     //desligar:
     case 'd':
 
-    ByeByte('d');
+    SerialSendChar('d');
 
     break;
 
     //marcar irrigação
     case 'm':
-    ByeByte('m');
+    SerialSendChar('m');
     //pedir dia, mês, ano, hora, minuto e segundo para o app
-    unsigned int dia;
-    dia = 4;
-    unsigned int mes;
-    mes = 6;
-    unsigned int ano;
-    ano = 2024;
-    unsigned int hora;
-    hora = 17;
-    unsigned int minuto;
-    minuto = 5;
-    unsigned int segundo;
-    segundo = 30;
 
     //Enviar esses parâmetros para a ST
-    ByeTime(dia, mes, ano, hora, minuto, segundo);
+    SerialSendTime(dia, mes, ano, hora, minuto, segundo);
 
     break;
 
     //pedir o status da irrigação
     case 's':
 
-    ByeByte('s');
+    SerialSendChar('s');
 
     //Lê o status e classifica se é verdadeiro (irrigando) ou falso (desligado)
     char status;
-    status = HiStatus();
+    status = SerialReceiveStatus();
 
     if(status != 'L'){
 
-      printf("%c", status);
+      Serial.println(status);
 
     } 
     
     else{
 
-      printf("Error in HiStatus");
+      Serial.println("Error in SerialReceiveStatus");
 
     }
     
@@ -134,12 +135,11 @@ void loop() {
     //pedir o tempo da irrigação:
     case 'h':
 
-    unsigned int time_parameters[6];
-    ByeByte('h');
-    HiTime(time_parameters);
+    uint8_t time_parameters[6];
+    SerialSendChar('h');
+    SerialReceiveTime(time_parameters);
     for(int i = 0; i < 6; i++){
-      printf("%d", time_parameters[i]);
-      printf("\n");
+      Serial.println(time_parameters[i]);
     }
 
     //passa time_parameters para o app
