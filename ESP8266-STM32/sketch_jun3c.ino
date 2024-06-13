@@ -1,156 +1,106 @@
+uint8_t appByte;
+uint8_t time_parameters[6];
+
+uint8_t dia;
+uint8_t mes;
+uint8_t ano;
+uint8_t hora;
+uint8_t minuto;
+uint8_t segundo;
+
+const int BUTTON = 16; // GPIO16 (D0)
 
 void setup() {
-  // put your setup code here, to run once:
+  Serial.begin(115200);
 
-  //baud rate
-  Serial.begin(115200, SERIAL_8E1); 
+  pinMode(BUTTON, INPUT_PULLUP); // Use internal pull-up resistor for button pin
 
+  appByte = 'h';
+  dia = 4;
+  mes = 6;
+  ano = 24;
+  hora = 17;
+  minuto = 5;
+  segundo = 30;
 }
 
-void ByeByte(char ByteToGo){
-  Serial.write(ByteToGo);
+void SerialSendChar(uint8_t Byte) {
+  Serial.write(Byte);
 }
 
-void ByeTime(unsigned int dia, unsigned int mes, unsigned int ano, unsigned int hora, unsigned int minuto, unsigned int segundo){
-  unsigned int auxarr[6] = {dia, mes, ano, hora, minuto, segundo};
-
-  for(int i = 0; i < 6; i++){
-    Serial.write(auxarr[i]) ;
+void SerialSendTime(uint8_t dia, uint8_t mes, uint8_t ano, uint8_t hora, uint8_t minuto, uint8_t segundo) {
+  uint8_t auxarr[6] = {dia, mes, ano, hora, minuto, segundo};
+  for (int i = 0; i < 6; i++) {
+    Serial.write(auxarr[i]);
   }
-
 }
 
-void HiTime(unsigned int time_parameters[]){
-    if(Serial.available() >= 6){
+void SerialReceiveTime(uint8_t time_parameters[]) {
+  if (Serial.available() >= 6) {
+    for (int i = 0; i < 6; i++) {
+      time_parameters[i] = Serial.read();
+    }
+  } else {
+    Serial.println("Error in SerialReceiveTime");
+  }
+}
 
-      //Recebendo os parâmetros de tempo e armazenando-os num vetor
-      for(int i = 0; i < 6; i++){
+uint8_t SerialReceiveStatus() {
+  uint8_t status = 0xFF; // Unknown status
+  if (Serial.available() > 0) {
+    status = Serial.read();
+    char current;
+    switch (status) {
+      case 0: current = 'V'; break;
+      case 1: current = 'F'; break;
+      default: current = 'T'; break;
+    }
+    Serial.println(current);
+  } else {
+    Serial.println('L'); // Unknown error
+  }
+  return status;
+}
 
-        time_parameters[i] = Serial.read();
-
+void Executer() {
+  switch (appByte) {
+    case 'l':
+      SerialSendChar(appByte);
+      SerialSendTime(0, 0, 0, 0, 0, 0);
+      break;
+    case 'd':
+      SerialSendChar(appByte);
+      SerialSendTime(0, 0, 0, 0, 0, 0);
+      break;
+    case 'm':
+      SerialSendChar(appByte);
+      SerialSendTime(dia, mes, ano, hora, minuto, segundo);
+      break;
+    case 's':
+      SerialSendChar(appByte);
+      SerialSendTime(0, 0, 0, 0, 0, 0);
+      delay(1000); // Adjust delay as needed
+      SerialReceiveStatus();
+      break;
+    case 'h':
+      SerialSendChar(appByte);
+      SerialSendTime(0, 0, 0, 0, 0, 0);
+      delay(1000); // Adjust delay as needed
+      SerialReceiveTime(time_parameters);
+      for (int i = 0; i < 6; i++) {
+        Serial.println(time_parameters[i]);
       }
-
-    } else{
-      printf("Error in HiTime\n");
-    }
+      break;
   }
-
-char HiStatus(){
-  char current;
-  if(Serial.available() > 0){
-    unsigned int status = Serial.read();
-
-    switch(status){
-      //está irrigando
-      case 0:
-      current = 'V';
-      break;
-      //não está irrigando
-      case 1:
-      current = 'F';
-      break;
-      //erro desconhecido
-      default:
-      current = 'L';
-      break;
-    }
-
-  } else{
-    //erro desconhecido
-    current = 'L';
-  }
-
-  return current;
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  // Read the state of the button
+  int reading = digitalRead(BUTTON);
 
-  //Pego os comandos do app:
-  char appByte;
-  appByte = 'l';
-  
-
-  switch(appByte){
-    //ligar:
-    case 'l':
-
-    ByeByte('l');
-
-    break;
-
-    //desligar:
-    case 'd':
-
-    ByeByte('d');
-
-    break;
-
-    //marcar irrigação
-    case 'm':
-    ByeByte('m');
-    //pedir dia, mês, ano, hora, minuto e segundo para o app
-    unsigned int dia;
-    dia = 4;
-    unsigned int mes;
-    mes = 6;
-    unsigned int ano;
-    ano = 2024;
-    unsigned int hora;
-    hora = 17;
-    unsigned int minuto;
-    minuto = 5;
-    unsigned int segundo;
-    segundo = 30;
-
-    //Enviar esses parâmetros para a ST
-    ByeTime(dia, mes, ano, hora, minuto, segundo);
-
-    break;
-
-    //pedir o status da irrigação
-    case 's':
-
-    ByeByte('s');
-
-    //Lê o status e classifica se é verdadeiro (irrigando) ou falso (desligado)
-    char status;
-    status = HiStatus();
-
-    if(status != 'L'){
-
-      printf("%c", status);
-
-    } 
-    
-    else{
-
-      printf("Error in HiStatus");
-
-    }
-    
-    break;
-
-    //pedir o tempo da irrigação:
-    case 'h':
-
-    unsigned int time_parameters[6];
-    ByeByte('h');
-    HiTime(time_parameters);
-    for(int i = 0; i < 6; i++){
-      printf("%d", time_parameters[i]);
-      printf("\n");
-    }
-
-    //passa time_parameters para o app
-
-
-    break;
-    
+  if(reading == HIGH){
+    Executer();
   }
 
-
-
-  }
-
-
+  //reading = HIGH;
+}
