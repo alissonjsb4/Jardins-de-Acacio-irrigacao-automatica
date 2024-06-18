@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
-	/**
-	  ******************************************************************************
-	  * @file           : main.c
-	  * @brief          : Main program body
-	  ******************************************************************************
-	  * @attention
-	  *
-	  * Copyright (c) 2024 STMicroelectronics.
-	  * All rights reserved.
-	  *
-	  * This software is licensed under terms that can be found in the LICENSE file
-	  * in the root directory of this software component.
-	  * If no LICENSE file comes with this software, it is provided AS-IS.
-	  *
-	  ******************************************************************************
-	  */
+/**
+  ******************************************************************************
+  * @file           : main.c
+  * @brief          : Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2024 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -31,7 +31,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -41,66 +40,60 @@
 
 /* Private variables ---------------------------------------------------------*/
 RTC_HandleTypeDef hrtc;
-HAL_RTC_AlarmTypeDef dAlarm;
+
+UART_HandleTypeDef huart1;
+DMA_HandleTypeDef hdma_usart1_rx;
 
 /* USER CODE BEGIN PV */
 
+uint8_t general_buffer[7] = {0, 0, 0, 0, 0, 0, 0};
+uint8_t on = 1;
+uint8_t time_parameters[6] = {9, 9, 9, 9, 9, 9};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_RTC_Init(void);
+static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
-
-
 /* USER CODE BEGIN 0 */
 
-void init_rtc(){
-	RTC_TimeTypeDef time;
-	time.Hours = 12;
-	time.Minutes = 0;
-	time.Seconds = 0;
+//Inicializa o RTC da placa
+void InitRtc(){
 
-	RTC_DateTypeDef date;
-	date.Year = 2024;
-	date.Month = 1;
-	date.WeekDay = 1;
-
-	HAL_RTC_SetDate(&hrtc, &date, RTC_FORMAT_BIN);
-	HAL_RTC_SetTime(&hrtc, &time, RTC_FORMAT_BIN);
 }
 
-void set_rtc(uint8_t hour, uint8_t minute, uint8_t second, uint8_t year, uint8_t month, uint8_t day){
-	RTC_TimeTypeDef time;
-	time.Hours = hour;
-	time.Minutes = minute;
-	time.Seconds = second;
+//Atualiza o RTC com uma data e horário fornecidos pelo usuário
+void SetRtc(unsigned int time_buffer[]){
 
-	RTC_DateTypeDef date;
-	date.Year = year;
-	date.Month = month;
-	date.WeekDay = day;
-
-	HAL_RTC_SetDate(&hrtc, &date, RTC_FORMAT_BIN);
-	HAL_RTC_SetTime(&hrtc, &time, RTC_FORMAT_BIN);
 }
 
-void set_alarm(uint8_t hour, uint8_t minute, uint8_t second, uint8_t year, uint8_t day){
-		RTC_TimeTypeDef time;
-		time.Hours = hour;
-		time.Minutes = minute;
-		time.Seconds = second;
+//Função de marcar uma irrigação futura
+void SetIrrigationTime(unsigned int time_buffer[]){
 
-		RTC_DateTypeDef date;
-		date.Year = year;
-		date.Month = month;
-		date.WeekDay = day;
 }
+
+//Função de iniciar a irrigação. Vai configurar um pino como High
+void TurnOn(){
+//Função de ligar
+
+
+
+}
+
+//Função de desligar a irrigação. Vai configurar um pino como Low
+void TurnOff(){
+//Função de desligar
+
+}
+
+
 
 /* USER CODE END 0 */
 
@@ -111,8 +104,7 @@ void set_alarm(uint8_t hour, uint8_t minute, uint8_t second, uint8_t year, uint8
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-		bool irrigando;
-		bool ir_progamada;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -121,7 +113,6 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  init_rtc();
 
   /* USER CODE END Init */
 
@@ -134,79 +125,23 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_RTC_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+
+  HAL_UART_Receive_DMA(&huart1, &general_buffer, 7);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	  while (1)
-	  {
-
-		  char c = '0'; //RECEBE A INSTRUÇÃO DA ESP
-
-
-		  GPIO_PinState pin_state = HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_11);
-
-
-
-		  switch(c){
-
-			  case 'i': //REALIZA IRRIGAÇÃO INSTANTÂNEA, PRECISA DO TEMPO DE DURAÇÃO DA IRRIGAÇÃO
-				  if(!irrigando){
-					//Inicia a irrigação
-					 irrigando = true;
-					 HAL_GPIO_WritePin(GPIOB, GPIO_PIN_11, GPIO_PIN_SET);
-				  }
-				  else{
-					  //Passar pra esp que já está ligado
-				  }
-				  //FUNÇÃO DE RETORNAR Q DEU TUDO CERTO PRA ESP
-				  break;
-
-			  case 'c': //CESSA A IRRIGAÇÃO ATUAL
-				  if(irrigando){
-					  irrigando = false;
-					  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
-					  break;
-				  else{
-					  //Passar pra esp que já está desligado
-				  }
-				  break;
-
-			  case 'a': //AGENDA IRRIGAÇÃO DIÁRIA
-				  if(){
-
-				  }
-
-				  break;
-
-			  case 'd': //DESATIVA A IRRIGAÇÃO DIÁRIA
-				  if(!ir_progamada){
-					  //RETORNAR A ESP QUE JA ESTÁ DESATIVADA
-					  break;
-				  }
-				  //IMPLEMENTAR FUNÇÃO QUE DESATIVA A IRRIGAÇÃO
-				  ir_progamada = 0;
-				  break;
-
-			  case 's':
-				  //Passar o "irrigando" pra esp
-				  break;
-
-			  case m: //MODIFICA O HORÁRIO DA STM
-				  //Pega hora, minuto, segundo, ano, mês e dia da esp
-				  if(set_rtc(hour, minute, second, year, month, day) != HAL_OK){
-					  Error_Handler();
-				  }
-
-		  }
-
+  while (1)
+  {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  }
+  }
   /* USER CODE END 3 */
 }
 
@@ -218,11 +153,7 @@ void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-
-  /** Configure the main internal regulator output voltage
-  */
-  __HAL_RCC_PWR_CLK_ENABLE();
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
@@ -231,7 +162,9 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.LSIState = RCC_LSI_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI_DIV2;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL16;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -241,12 +174,18 @@ void SystemClock_Config(void)
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+  PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
   }
@@ -265,7 +204,7 @@ static void MX_RTC_Init(void)
   /* USER CODE END RTC_Init 0 */
 
   RTC_TimeTypeDef sTime = {0};
-  RTC_DateTypeDef sDate = {0};
+  RTC_DateTypeDef DateToUpdate = {0};
 
   /* USER CODE BEGIN RTC_Init 1 */
 
@@ -274,12 +213,8 @@ static void MX_RTC_Init(void)
   /** Initialize RTC Only
   */
   hrtc.Instance = RTC;
-  hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
-  hrtc.Init.AsynchPrediv = 127;
-  hrtc.Init.SynchPrediv = 255;
-  hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
-  hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-  hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+  hrtc.Init.AsynchPrediv = RTC_AUTO_1_SECOND;
+  hrtc.Init.OutPut = RTC_OUTPUTSOURCE_ALARM;
   if (HAL_RTC_Init(&hrtc) != HAL_OK)
   {
     Error_Handler();
@@ -294,24 +229,72 @@ static void MX_RTC_Init(void)
   sTime.Hours = 0x0;
   sTime.Minutes = 0x0;
   sTime.Seconds = 0x0;
-  sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-  sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+
   if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
   {
     Error_Handler();
   }
-  sDate.WeekDay = RTC_WEEKDAY_MONDAY;
-  sDate.Month = RTC_MONTH_JANUARY;
-  sDate.Date = 0x1;
-  sDate.Year = 0x0;
+  DateToUpdate.WeekDay = RTC_WEEKDAY_MONDAY;
+  DateToUpdate.Month = RTC_MONTH_JANUARY;
+  DateToUpdate.Date = 0x1;
+  DateToUpdate.Year = 0x0;
 
-  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
+  if (HAL_RTC_SetDate(&hrtc, &DateToUpdate, RTC_FORMAT_BCD) != HAL_OK)
   {
     Error_Handler();
   }
   /* USER CODE BEGIN RTC_Init 2 */
 
   /* USER CODE END RTC_Init 2 */
+
+}
+
+/**
+  * @brief USART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART1_Init 0 */
+
+  /* USER CODE END USART1_Init 0 */
+
+  /* USER CODE BEGIN USART1_Init 1 */
+
+  /* USER CODE END USART1_Init 1 */
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 115200;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART1_Init 2 */
+
+  /* USER CODE END USART1_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
 
 }
 
@@ -323,36 +306,62 @@ static void MX_RTC_Init(void)
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-/* USER CODE BEGIN MX_GPIO_Init_1 */
-/* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : PA11 */
-  GPIO_InitStruct.Pin = GPIO_PIN_11;
+  /*Configure GPIO pins : PA3 PA4 PA5 PA6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PB6 PB7 */
-  GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-/* USER CODE BEGIN MX_GPIO_Init_2 */
-/* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+
+	//Deve ligar a irrigação automaticamente
+	if(general_buffer[0] == 'l'){
+			//TurnOn();
+			on = 0;
+		}
+	//Deve desligar a irrigação automaticamente
+	else if(general_buffer[0] == 'd'){
+			//TurnOff();
+			on = 1;
+		}
+	//Deve marcar, usando o RTC, um horário para a próxima irrigação
+	else if(general_buffer[0] == 'm'){
+			for(int i = 0; i < 6; i++){
+				time_parameters[i] = general_buffer[i+1];
+			}
+			//SetIrrigationTime(time_parameters);
+		}
+	//Deve retornar o status de irrigação para a esp
+	else if(general_buffer[0] == 's'){
+			HAL_UART_Transmit(&huart1,&on, 1, 100);
+		}
+	//Deve retornar os parâmetros de irrigação para a esp
+	else if(general_buffer[0] == 'h'){
+			HAL_UART_Transmit(&huart1, time_parameters, 6, 100);
+		}
+	else{
+			Error_Handler();
+		}
+
+
+
+
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
+
+}
 
 /* USER CODE END 4 */
 
@@ -363,11 +372,11 @@ static void MX_GPIO_Init(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-	  /* User can add his own implementation to report the HAL error return state */
-	  __disable_irq();
-	  while (1)
-	  {
-	  }
+  /* User can add his own implementation to report the HAL error return state */
+  __disable_irq();
+        while (1)
+  {
+  }
   /* USER CODE END Error_Handler_Debug */
 }
 
@@ -382,8 +391,8 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-	  /* User can add his own implementation to report the file name and line number,
-		 ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* User can add his own implementation to report the file name and line number,
+     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
