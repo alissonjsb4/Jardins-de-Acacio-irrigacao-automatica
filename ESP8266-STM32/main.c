@@ -77,19 +77,40 @@ void SetRtc(unsigned int time_buffer[]){
 //Função de marcar uma irrigação futura
 void SetIrrigationTime(unsigned int time_buffer[]){
 
+	for(int i = 0; i < 6; i++){
+
+		for(int ii = 0; ii < time_buffer[i]; ii++){
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
+			HAL_Delay(500);
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
+		}
+
+		HAL_Delay(2000);
+	}
+
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
+
 }
 
 //Função de iniciar a irrigação. Vai configurar um pino como High
 void TurnOn(){
+//Função de ligar
 
-
-
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_SET);
 
 }
 
 //Função de desligar a irrigação. Vai configurar um pino como Low
 void TurnOff(){
+//Função de desligar
 
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
 
 }
 
@@ -130,7 +151,7 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_UART_Receive_DMA(&huart1, &general_buffer, 7);
+        HAL_UART_Receive_DMA(&huart1, &general_buffer, 7);
 
   /* USER CODE END 2 */
 
@@ -325,23 +346,28 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 
+	//Deve ligar a irrigação automaticamente
 	if(general_buffer[0] == 'l'){
-			//TurnOn();
+			TurnOn();
 			on = 0;
 		}
+	//Deve desligar a irrigação automaticamente
 	else if(general_buffer[0] == 'd'){
-			//TurnOff();
+			TurnOff();
 			on = 1;
 		}
+	//Deve marcar, usando o RTC, um horário para a próxima irrigação
 	else if(general_buffer[0] == 'm'){
 			for(int i = 0; i < 6; i++){
 				time_parameters[i] = general_buffer[i+1];
 			}
-			//SetIrrigationTime(time_parameters);
+			SetIrrigationTime(time_parameters);
 		}
+	//Deve retornar o status de irrigação para a esp
 	else if(general_buffer[0] == 's'){
 			HAL_UART_Transmit(&huart1,&on, 1, 100);
 		}
+	//Deve retornar os parâmetros de irrigação para a esp
 	else if(general_buffer[0] == 'h'){
 			HAL_UART_Transmit(&huart1, time_parameters, 6, 100);
 		}
