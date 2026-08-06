@@ -1,19 +1,22 @@
-# Jardins de Acácio - Sistema de Irrigação Automática
+# Jardins de Acácio — irrigação automática
 
-## Descrição
-Este repositório contém o projeto "Jardins de Acácio", desenvolvido pelo Clube do Hardware (CdH) em colaboração com o Laboratório de Engenharia e Sistemas de Controle (LESC). O projeto visa automatizar a irrigação dos jardins do LESC, utilizando uma abordagem sustentável e integrada com a Internet das Coisas (IoT). O sistema é composto por um aplicativo em Python para controle, uma placa ESP8266 como módulo Wi-Fi e um microcontrolador STM32 para controle do sistema de irrigação.
+Sistema de irrigação automatizada dos jardins do LESC/UFC, projeto do Clube do
+Hardware (2024). Três partes: aplicativo de controle em Python/Kivy, ESP8266
+como ponte Wi-Fi e STM32 acionando a irrigação.
 
-## Estrutura do Repositório
-O repositório está organizado da seguinte forma:
-- `aplicativo_python`: Contém o código-fonte do aplicativo em Python para controle do sistema de irrigação.
-- `esp_wifi`: Contém os arquivos relacionados à configuração e comunicação da placa ESP8266 como módulo Wi-Fi.
-- `stm32`: Contém os arquivos de código-fonte e recursos relacionados ao microcontrolador STM32 para controle do sistema de irrigação.
+## Funcionamento
 
-## Como Contribuir
-1. Faça um fork deste repositório.
-2. Clone o fork para o seu ambiente de desenvolvimento.
-3. Implemente as alterações ou melhorias desejadas.
-4. Faça commit das suas alterações.
-5. Envie um pull request para revisão.
+O aplicativo (`aplicativo_python/`) envia comandos pela rede ao ESP8266
+(`Esp01.ino`), que os repassa por serial ao STM32 (`main.c`), responsável por
+acionar as válvulas. Interface com telas de controle e de status.
 
-Para mais informações ou esclarecimentos, entre em contato conosco pelo email hardwareufc@gmail.com.
+## Estrutura
+
+    aplicativo_python/   aplicativo Kivy (telas .kv, fontes e imagens)
+    Esp01.ino            firmware do ESP8266 (ponte Wi-Fi ↔ serial)
+    main.c               firmware do STM32 (acionamento)
+    ESP8266-STM32/       integração e testes da comunicação
+
+## Stack
+
+Python, Kivy, C (STM32), Arduino (ESP8266).
